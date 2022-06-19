@@ -12,4 +12,4 @@ Create a ParseOrca object and pass the path to the ORCA log file as an input. Th
 - `get_energies()`: Returns a tuple of electronic energy, enthalpy, entropy*temperature, and Gibbs free energy in Hartrees (in this order).
 -`generate_report(out_dir, dict_key)`: Generates a report from the log file in the form of an dictionary with `dict_key` as the key and saves it as a JSON at `out_dir` directory.
 
-`Example` directory contains a test case for a single water molecule calculation. 
+`Example` directory contains a test case for a single water molecule calculation. You must have `ParseOrca.py` added to the PATH or copy it to the same directory as the `ORCA_log_parse_test.py` file for the script to work.
