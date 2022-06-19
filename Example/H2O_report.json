@@ -1,0 +1,28 @@
+{
+  "H2O": {
+    "Successful Job completion": true,
+    "Stationary Point Coordinates": [
+      [
+        0.0,
+        0.0,
+        0.072263
+      ],
+      [
+        -0.750346,
+        0.0,
+        -0.502132
+      ],
+      [
+        0.750346,
+        0.0,
+        -0.502132
+      ]
+    ],
+    "# Imaginary Frequencies": 0,
+    "Imaginary Frequencies (cm**-1)": [],
+    "Electronic Energy (Ha)": -75.96133849,
+    "G (Ha)": -75.95582162,
+    "H (Ha)": -75.93445136,
+    "TS (Ha)": 0.02137026
+  }
+}

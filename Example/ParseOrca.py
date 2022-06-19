@@ -61,40 +61,52 @@ class ParseOrca:
         Returns:
             np.array: optimized (or final if the optimization failed) coordinates.
         """
-        bohr2ang = 0.529177
         
-        match_term = "  #           XYZ [au]              \
-        r0(AA) [Ang.]  CN      C6(AA)     C8(AA)    C10(AA) [au]"
-        match_list = match_term.split()
-        match_list.sort()
-        for i, line in enumerate(self.rep_cnt[::-1]):
-            line_list = line.split()
-            line_list.sort()
-            if line_list == match_list:
+        start_line = -1
+        match_term = "--- Optimized Parameters ---"
+        for i, line in enumerate(self.rep_cnt):
+            line_list = line.strip()
+            if match_term in line_list:
                 start_line = i
                 break
         
-        structure = self.rep_cnt[-start_line:-start_line + self.natoms]
-        structure = [i.split()[:-5] for i in structure]
+        if start_line == -1:
+            raise RuntimeError("failed to locate the optimized structure")
+        
+        opt_cnt = self.rep_cnt[start_line:]
+        start_line = -1
+        match_term = "CARTESIAN COORDINATES (ANGSTROEM)"
+        for i, line in enumerate(opt_cnt):
+            line_list = line.strip()
+            if match_term in line_list:
+                start_line = i
+                break
+        
+        if start_line == -1:
+            raise RuntimeError("failed to locate the optimized structure")
+
+
+        structure = opt_cnt[start_line + 2:start_line + 2 + self.natoms]
+        structure = [i.split() for i in structure]
 
         for atom in structure:
-            atom[0] = int(atom[0])
-            atom[1] = float(atom[1])*bohr2ang
-            atom[2] = float(atom[2])*bohr2ang
-            atom[3] = float(atom[3])*bohr2ang
-            atom[4] = atom[4].title()
+            atom[0] = atom[0].title()
+            atom[1] = float(atom[1])
+            atom[2] = float(atom[2])
+            atom[3] = float(atom[3])
         
-        coords = [atom[1:-1] for atom in structure]
+        coords = [atom[1:] for atom in structure]
         for i, atom in enumerate(structure):
-            structure[i] = [atom[0], coords[i], atom[-1]]
+            structure[i] = [atom[0], coords[i]]
         
         self.final_struct = structure
         self.final_coords = np.array(coords)
-        self.atom_list_sym = [atom[-1] for atom in structure]
-        self.atom_list_num = [self.ptable_r[atom[-1]] for atom in structure]
+        self.atom_list_sym = [atom[0] for atom in structure]
+        self.atom_list_num = [self.ptable_r[atom[0]] for atom in structure]
 
         if not self.success:
             print('WARNING! Optimization failed or did not converge. Latest coordinates will be returned instead.')
+            return self.final_coords
         else:
             self.optimized_struct = self.final_struct
             self.optimized_coords = self.final_coords
@@ -112,16 +124,16 @@ class ParseOrca:
         freq_key = "Scaling factor for frequencies"
         for i, line in enumerate(self.rep_cnt[::-1]):
             if freq_key in line:
-                startline = i - 1
+                start_line = i - 1
                 break
         
         if start_line == -1:
             print("No frequency calculation found.")
             return []
         nmodes = self.natoms * 3
-        endline = -startline + nmodes
+        endline = -start_line + nmodes
 
-        freqs_txt = self.rep_cnt[-startline: endline]
+        freqs_txt = self.rep_cnt[-start_line: endline]
         freqs = []
         for line in freqs_txt:
             freqs.append(float(line.split()[1]))
